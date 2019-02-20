@@ -10,7 +10,6 @@ public class BankSerializer {
     public String requestToString(BankInterestRequest request)
     {
         return genson.serialize(request);
-
     }
 
     public BankInterestRequest requestFromString(String str)

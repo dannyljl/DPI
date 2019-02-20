@@ -49,9 +49,6 @@ public class LoanClientFrame extends JFrame {
 	private JLabel lblNewLabel_1;
 	private JTextField tfTime;
 
-	MessageConsumer consumer = null;
-
-	Message newMessage = null;
 
 	LoanBrokerAppGateway loanBrokerApp = new LoanBrokerAppGateway();
 
@@ -140,49 +137,6 @@ public class LoanClientFrame extends JFrame {
 			}
 		});
 			//ClientRepQ
-
-		try {
-			Properties props = new Properties();
-			props.setProperty(Context.INITIAL_CONTEXT_FACTORY,
-					"org.apache.activemq.jndi.ActiveMQInitialContextFactory");
-			props.setProperty(Context.PROVIDER_URL, "tcp://localhost:61616");
-
-			// connect to the Destination called “myFirstChannel”
-			// queue or topic: “queue.myFirstDestination” or
-			//“topic.myFirstDestination”
-			props.put(("queue.ClientRepQ"), " ClientRepQ");
-
-			Context jndiContext = new InitialContext(props);
-			ConnectionFactory connectionFactory = (ConnectionFactory) jndiContext
-					.lookup("ConnectionFactory");
-			connection = connectionFactory.createConnection();
-			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-
-			// connect to the receiver destination
-			Destination receiveDestination = (Destination) jndiContext.lookup("ClientRepQ");
-			consumer = session.createConsumer(receiveDestination);
-
-			connection.start(); // this is needed to start receiving messages
-
-		} catch (NamingException | JMSException e) {
-			e.printStackTrace();
-		}
-
-
-		try {
-			consumer.setMessageListener(new MessageListener() {
-
-				@Override
-				public void onMessage(Message msg) {
-					System.out.println("received message: " + msg);
-					newMessage = msg;
-
-				}
-			});
-
-		} catch (JMSException e) {
-			e.printStackTrace();
-		}
 
 
 
