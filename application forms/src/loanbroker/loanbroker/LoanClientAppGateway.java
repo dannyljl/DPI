@@ -37,6 +37,7 @@ public class LoanClientAppGateway extends abstractGateway {
                 try {
                     textMessage = ((TextMessage) message).getText();
                     RequestID = message.getJMSMessageID();
+                    System.out.println(); RequestID = message.getJMSMessageID();
                     onLoanRequestArrived(serializer.requestFromtring(textMessage));
 
                 } catch (JMSException e) {
