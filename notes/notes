@@ -1,0 +1,3 @@
+2 manieren om te kijken welke reply bij elke request hoort.
+1. De reply en request heen en terug sturen. probleem: klassendiagram aanpassen want er wordt geen ssn meegestuurd. maar je weet zeker dat 2 object hetzelfde zijn.
+2. de ID opslaan in de client met de bijbehorende request en de ID steeds meegeven overal naar toe. je weet niet zeker of 2 objecten precies hetzelfde zijn en je moet lijsten opslaan in de app. als de client tussendoor kapot gaat is de lijst weg.
