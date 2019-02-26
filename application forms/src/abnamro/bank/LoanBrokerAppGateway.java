@@ -32,14 +32,15 @@ public class LoanBrokerAppGateway extends abstractGateway {
 
 
     public LoanBrokerAppGateway(){
-        support = new PropertyChangeSupport(this);
+        //support = new PropertyChangeSupport(this);
         receiver.setListener(new MessageListener() {
             @Override
             public void onMessage(Message message) {
                 String textMessage = null;
                 try {
+                    RequestID = message.getJMSCorrelationID();
                     textMessage = ((TextMessage) message).getText();
-                    System.out.println("correlationID:"); RequestID = message.getJMSCorrelationID();
+                    System.out.println("correlationID:" + RequestID + "lol");
                     OnLoanRequestArrived(serializer.requestFromString(textMessage));
                 } catch (JMSException e) {
                     e.printStackTrace();
@@ -52,11 +53,12 @@ public class LoanBrokerAppGateway extends abstractGateway {
         request = this.request;
         RequestReply requestReply = new RequestReply(request,reply);
         requestReplyList.add(requestReply);
-        setRequestList(requestReplyList);
-        Message message = sender.createTextMessage(serializer.requestReplyToString(requestReply));
+        //setRequestList(requestReplyList);
+        Message message = sender.createTextMessage(serializer.replyToString(reply));
         String id = RequestWithIDList.get(request);
         try {
             message.setJMSCorrelationID(id);
+            message.setJMSMessageID(id);
         } catch (JMSException e) {
             e.printStackTrace();
         }
@@ -70,7 +72,7 @@ public class LoanBrokerAppGateway extends abstractGateway {
         System.out.println("BankInterest Request: " + request.toString());
         RequestWithIDList.put(request,RequestID);
         requestReplyList.add(new RequestReply(request,null));
-        setRequestList(requestReplyList);
+        //setRequestList(requestReplyList);
         return request;
     }
 

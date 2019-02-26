@@ -39,7 +39,7 @@ public class BankAppGateway extends abstractGateway {
                 try {
                     textMessage = ((TextMessage) message).getText();
                     RequestID = message.getJMSCorrelationID();
-                    OnBankReplyArrived(serializer.replyFromString(textMessage),serializer.requestFromString(textMessage));
+                    OnBankReplyArrived(serializer.replyFromString(textMessage));
                 } catch (JMSException e) {
                     e.printStackTrace();
                 }
@@ -47,27 +47,25 @@ public class BankAppGateway extends abstractGateway {
         });
     }
 
-    public void OnBankReplyArrived(BankInterestReply reply, BankInterestRequest request){
+    public void OnBankReplyArrived(BankInterestReply reply){
+
         LoanReply reply2 = new LoanReply();
         reply2.setQuoteID(reply.getQuoteId());
         reply2.setInterest(reply.getInterest());
 
-        LoanRequest request2 = new LoanRequest();
-        request2.setAmount(request.getAmount());
-        request2.setTime(request.getTime());
-
-        System.out.println("Receiving Bankinterestreply: " + reply.toString() + "Receiving BankinterestRequest: " + request.toString());
-        loanClientApp.sendLoanReply(request2,reply2,RequestID);
+        System.out.println("Receiving Bankinterestreply: " + reply.toString());
+        loanClientApp.sendLoanReply(reply2,RequestID);
     }
     public void sendBankRequest(BankInterestRequest request, String messageID){
         Message message = sender.createTextMessage(serializer.requestToString(request));
         try {
             message.setJMSCorrelationID(messageID);
+            message.setJMSMessageID(messageID);
         } catch (JMSException e) {
             e.printStackTrace();
         }
         sender.send(message);
-        System.out.println("sending  BankInterestRequest:" + request.toString());
+        System.out.println("sending  BankInterestRequest:" + request.toString() + "with correlationID: " + messageID);
     }
 
 
