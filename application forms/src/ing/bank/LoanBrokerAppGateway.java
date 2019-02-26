@@ -1,4 +1,4 @@
-package abnamro.bank;
+package ing.bank;
 
 import abstractGateWay.abstractGateway;
 import loanclient.loanclient.MessageReceiverGateway;
@@ -6,13 +6,11 @@ import loanclient.loanclient.MessageSenderGateway;
 import messaging.requestreply.RequestReply;
 import model.bank.BankInterestReply;
 import model.bank.BankInterestRequest;
-import sun.misc.Request;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.TextMessage;
-import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,10 +36,10 @@ public class LoanBrokerAppGateway extends abstractGateway {
             public void onMessage(Message message) {
                 String textMessage = null;
                 try {
-                    textMessage = ((TextMessage) message).getText();
                     RequestID = message.getJMSCorrelationID();
-                    System.out.println("correlationID:" + message.getJMSCorrelationID() + "lol");
-                    System.out.println("messageID" + message.getJMSMessageID());
+                    textMessage = ((TextMessage) message).getText();
+                    System.out.println("correlationID:" + RequestID + "lol");
+                    System.out.println("messageID:" + message.getJMSMessageID());
                     OnLoanRequestArrived(serializer.requestFromString(textMessage));
                 } catch (JMSException e) {
                     e.printStackTrace();
@@ -58,7 +56,8 @@ public class LoanBrokerAppGateway extends abstractGateway {
         Message message = sender.createTextMessage(serializer.replyToString(reply));
         String id = RequestWithIDList.get(request);
         try {
-            message.setJMSCorrelationID(RequestID);
+            message.setJMSCorrelationID(id);
+            message.setJMSMessageID(id);
         } catch (JMSException e) {
             e.printStackTrace();
         }

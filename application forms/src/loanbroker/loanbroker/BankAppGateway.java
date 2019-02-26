@@ -38,6 +38,7 @@ public class BankAppGateway extends abstractGateway {
                 String textMessage = null;
                 try {
                     textMessage = ((TextMessage) message).getText();
+                    System.out.println(message.toString());
                     RequestID = message.getJMSCorrelationID();
                     OnBankReplyArrived(serializer.replyFromString(textMessage));
                 } catch (JMSException e) {
@@ -59,13 +60,17 @@ public class BankAppGateway extends abstractGateway {
     public void sendBankRequest(BankInterestRequest request, String messageID){
         Message message = sender.createTextMessage(serializer.requestToString(request));
         try {
+            System.out.println("gonna send this to the bank message ID:" + messageID);
             message.setJMSCorrelationID(messageID);
-            message.setJMSMessageID(messageID);
         } catch (JMSException e) {
             e.printStackTrace();
         }
         sender.send(message);
-        System.out.println("sending  BankInterestRequest:" + request.toString() + "with correlationID: " + messageID);
+        try {
+            System.out.println("sending  BankInterestRequest:" + request.toString() + "with correlationID: " + message.getJMSCorrelationID());
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
     }
 
 

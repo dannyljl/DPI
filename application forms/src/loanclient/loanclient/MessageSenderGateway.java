@@ -54,7 +54,6 @@ public class MessageSenderGateway {
 
     public void send(Message msg){
         try {
-            msg.setJMSCorrelationID(msg.getJMSMessageID());
             producer.send(msg);
         } catch (JMSException e) {
             e.printStackTrace();

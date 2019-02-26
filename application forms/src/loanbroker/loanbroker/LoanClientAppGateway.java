@@ -59,7 +59,6 @@ public class LoanClientAppGateway extends abstractGateway {
         Message message = sender.createTextMessage(serializer.replyToString(reply));
         try {
             message.setJMSCorrelationID(requestId);
-            message.setJMSMessageID(requestId);
         } catch (JMSException e) {
             e.printStackTrace();
         }
