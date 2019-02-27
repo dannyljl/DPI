@@ -21,12 +21,13 @@ import java.util.Map;
 
 public class LoanBrokerAppGateway extends abstractGateway {
     private MessageSenderGateway sender = new MessageSenderGateway("BankBrokerReplyQ");
-    private MessageReceiverGateway receiver = new MessageReceiverGateway("BankBrokerRequestQ");
+    private MessageReceiverGateway receiver = new MessageReceiverGateway("abnBrokerRequestQ");
     private BankSerializer serializer = new BankSerializer();
     private String RequestID = null;
     private Map<BankInterestRequest,String> RequestWithIDList = new HashMap<BankInterestRequest,String>();
     private List<RequestReply> requestReplyList = new ArrayList<RequestReply>();
     private BankInterestRequest request;
+    private int aggregationID;
 
     private PropertyChangeSupport support;
 
@@ -40,8 +41,9 @@ public class LoanBrokerAppGateway extends abstractGateway {
                 try {
                     textMessage = ((TextMessage) message).getText();
                     RequestID = message.getJMSCorrelationID();
-                    System.out.println("correlationID:" + message.getJMSCorrelationID() + "lol");
+                    System.out.println("correlationID:" + message.getJMSCorrelationID());
                     System.out.println("messageID" + message.getJMSMessageID());
+                    aggregationID = message.getIntProperty("aggregationID");
                     OnLoanRequestArrived(serializer.requestFromString(textMessage));
                 } catch (JMSException e) {
                     e.printStackTrace();
@@ -59,6 +61,7 @@ public class LoanBrokerAppGateway extends abstractGateway {
         String id = RequestWithIDList.get(request);
         try {
             message.setJMSCorrelationID(RequestID);
+            message.setIntProperty("aggregationID", aggregationID);
         } catch (JMSException e) {
             e.printStackTrace();
         }
