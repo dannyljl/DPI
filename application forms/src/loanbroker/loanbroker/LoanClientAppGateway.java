@@ -37,8 +37,8 @@ public class LoanClientAppGateway extends abstractGateway {
                 try {
                     textMessage = ((TextMessage) message).getText();
                     RequestID = message.getJMSMessageID();
-                    System.out.println(); RequestID = message.getJMSMessageID();
-                    onLoanRequestArrived(serializer.requestFromtring(textMessage));
+                    System.out.println(RequestID);
+                    onLoanRequestArrived(serializer.requestFromtring(textMessage), RequestID);
 
                 } catch (JMSException e) {
                     e.printStackTrace();
@@ -47,16 +47,16 @@ public class LoanClientAppGateway extends abstractGateway {
         });
     }
 
-    public void onLoanRequestArrived(LoanRequest request){
+    public void onLoanRequestArrived(LoanRequest request, String requestID){
         BankInterestRequest bankRequest = new BankInterestRequest();
         bankRequest.setTime(request.getTime());
         bankRequest.setAmount(request.getAmount());
         System.out.println("Arrived LoanRequest: " + request.toString());
-        appGateway.sendBankRequest(bankRequest, RequestID);
+        appGateway.sendBankRequest(bankRequest, requestID);
     }
 
-    public void sendLoanReply(LoanRequest request, LoanReply reply, String requestId){
-        Message message = sender.createTextMessage(serializer.requestToString(request) + serializer.replyToString(reply));
+    public void sendLoanReply(LoanReply reply, String requestId){
+        Message message = sender.createTextMessage(serializer.replyToString(reply));
         try {
             message.setJMSCorrelationID(requestId);
         } catch (JMSException e) {
@@ -68,7 +68,7 @@ public class LoanClientAppGateway extends abstractGateway {
             e.printStackTrace();
         }
         sender.send(message);
-        System.out.println("sending  Loanrequest:" + request.toString() + " sending Loanreply: " + reply.toString());
+        System.out.println(" sending Loanreply: " + reply.toString());
     }
 
     public void setRequestList(List<RequestReply> value) {

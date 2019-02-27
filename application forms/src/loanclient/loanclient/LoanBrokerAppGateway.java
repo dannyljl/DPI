@@ -19,12 +19,12 @@ public class LoanBrokerAppGateway extends abstractGateway {
 
     public void applyForLoan(LoanRequest request){
         Message message = sender.createTextMessage(serializer.requestToString(request));
+        sender.send(message);
         try {
             requestIdList.put(message.getJMSMessageID(),request);
         } catch (JMSException e) {
             e.printStackTrace();
         }
-        sender.send(message);
         System.out.println("sending request : " + request.toString());
         receiver.setListener(new MessageListener() {
             @Override
@@ -32,7 +32,7 @@ public class LoanBrokerAppGateway extends abstractGateway {
                 try {
                     String textMessage = ((TextMessage) message).getText();
                     System.out.println("incoming textmessage: " + textMessage + "MessageCorrelationID: " + message.getJMSCorrelationID());
-                    onLoanReplyArrived(serializer.requestFromtring(textMessage),serializer.replyFromString(textMessage), message.getJMSCorrelationID());
+                    onLoanReplyArrived(serializer.replyFromString(textMessage), message.getJMSCorrelationID());
                 } catch (JMSException e) {
                     e.printStackTrace();
                 }
@@ -40,7 +40,8 @@ public class LoanBrokerAppGateway extends abstractGateway {
         });
     }
 
-    public void onLoanReplyArrived(LoanRequest request, LoanReply reply, String messageID){
+    public void onLoanReplyArrived(LoanReply reply, String messageID){
+        LoanRequest request = requestIdList.get(messageID);
         System.out.println("receiving request and reply: " + request.toString() + " Reply: " + reply.toString());
     }
 }

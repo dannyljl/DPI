@@ -38,8 +38,9 @@ public class BankAppGateway extends abstractGateway {
                 String textMessage = null;
                 try {
                     textMessage = ((TextMessage) message).getText();
+                    System.out.println(message.toString());
                     RequestID = message.getJMSCorrelationID();
-                    OnBankReplyArrived(serializer.replyFromString(textMessage),serializer.requestFromString(textMessage));
+                    OnBankReplyArrived(serializer.replyFromString(textMessage));
                 } catch (JMSException e) {
                     e.printStackTrace();
                 }
@@ -47,27 +48,29 @@ public class BankAppGateway extends abstractGateway {
         });
     }
 
-    public void OnBankReplyArrived(BankInterestReply reply, BankInterestRequest request){
+    public void OnBankReplyArrived(BankInterestReply reply){
+
         LoanReply reply2 = new LoanReply();
         reply2.setQuoteID(reply.getQuoteId());
         reply2.setInterest(reply.getInterest());
 
-        LoanRequest request2 = new LoanRequest();
-        request2.setAmount(request.getAmount());
-        request2.setTime(request.getTime());
-
-        System.out.println("Receiving Bankinterestreply: " + reply.toString() + "Receiving BankinterestRequest: " + request.toString());
-        loanClientApp.sendLoanReply(request2,reply2,RequestID);
+        System.out.println("Receiving Bankinterestreply: " + reply.toString());
+        loanClientApp.sendLoanReply(reply2,RequestID);
     }
     public void sendBankRequest(BankInterestRequest request, String messageID){
         Message message = sender.createTextMessage(serializer.requestToString(request));
         try {
+            System.out.println("gonna send this to the bank message ID:" + messageID);
             message.setJMSCorrelationID(messageID);
         } catch (JMSException e) {
             e.printStackTrace();
         }
         sender.send(message);
-        System.out.println("sending  BankInterestRequest:" + request.toString());
+        try {
+            System.out.println("sending  BankInterestRequest:" + request.toString() + "with correlationID: " + message.getJMSCorrelationID());
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
     }
 
 
